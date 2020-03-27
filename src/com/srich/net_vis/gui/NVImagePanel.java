@@ -2,15 +2,13 @@ package com.srich.net_vis.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Image;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -27,23 +25,9 @@ import javax.swing.JPanel;
  */
 public class NVImagePanel extends JPanel {
 
-	//NVImagePanel Class Variables
-	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Constructor for the NVImagePanel
-	 * @param filepath The file path where the image is stored
-	 */
-    public NVImagePanel(String filepath) {
-    	this.setBackground(Color.WHITE);
-    	this.setLayout(new BorderLayout());
-    	try {                
-    		BufferedImage image = ImageIO.read(new File(filepath));
-    		this.add(new JLabel(new ImageIcon(image)));
-    	} catch (IOException ex) {
-            ex.printStackTrace();
-    	}
-    }
+    //NVImagePanel Class Variables
+    private static final long serialVersionUID = 1L;
+    private BufferedImage image;
     
     /**
      * Constructor for the NVImagePanel
@@ -56,48 +40,24 @@ public class NVImagePanel extends JPanel {
     		InputStream in = new ByteArrayInputStream(image);
     		BufferedImage img = ImageIO.read(in);
     		this.add(new JLabel(new ImageIcon(img)));
+    		this.image = img;
     	} catch (IOException ex) {
             ex.printStackTrace();
     	}
     }
     
-    /**
-     * Constructor for the NVImagePanel
-     * @param image A byte array of an image
-     * @param scaleFactor An integer value
-     */
-    public NVImagePanel(byte[] image, int scaleFactor) {
-    	this.setBackground(Color.WHITE);
-    	this.setLayout(new BorderLayout());
-    	try {
-    		InputStream in = new ByteArrayInputStream(image);
-    		BufferedImage img = ImageIO.read(in);
-    		int scaleX = (int) (img.getWidth() * scaleFactor / 100);
-    		int scaleY = (int) (img.getHeight() * scaleFactor / 100);
-    		Image newImg = img.getScaledInstance(scaleX, scaleY, Image.SCALE_SMOOTH);
-    		BufferedImage buffered = new BufferedImage(scaleX, scaleY, IndexColorModel.OPAQUE);
-    		buffered.getGraphics().drawImage(newImg, 0, 0 , null);
-    		buffered.getGraphics().dispose();
-    		this.add(new JLabel(new ImageIcon(buffered)));
-    	} catch (IOException ex) {
-            ex.printStackTrace();
-    	}
-    }
-    
-    /**
-     * Constructor for the NVImagePanel
-     */
     public NVImagePanel() {
-    	this.setBackground(Color.WHITE);
-    	this.setLayout(new BorderLayout());
+        this.setBackground(Color.WHITE);
+        this.setLayout(new BorderLayout());
     }
     
-    /**
-     * A method that gets the panel's size as a Dimension Object.
-     * @return A Dimension of the panel's size
-     */
-    public Dimension getImagePanelSize() {
-    	return this.getSize();
+    @Override
+    public void paint(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        int x = (this.getWidth() - image.getWidth(null)) / 2;
+        int y = (this.getHeight() - image.getHeight(null)) / 2;
+        g2d.drawImage(this.image, x, y, null);
     }
-	
 }
